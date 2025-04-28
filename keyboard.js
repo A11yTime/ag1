@@ -48,15 +48,29 @@ CustomHeader.prototype.init = function (params) {
     this.params.setSort(nextSort, false); // false = replace, true = multi-sort
   };
 
-  // Events
+  // Keyboard & click events
   this.eGui.addEventListener('click', sortColumn);
   this.eGui.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       sortColumn();
-      
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      focusHeaderCell(0); // First header
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      const lastIndex = this.params.columnApi.getAllDisplayedColumns().length - 1;
+      focusHeaderCell(lastIndex); // Last header
     }
   });
+
+  // Helper to focus a specific header cell
+  function focusHeaderCell(index) {
+    const headerCells = document.querySelectorAll('[role="columnheader"]');
+    if (headerCells[index]) {
+      headerCells[index].focus();
+    }
+  }
 };
 
 CustomHeader.prototype.getGui = function () {

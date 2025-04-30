@@ -3,9 +3,9 @@ function CustomHeader() {}
 CustomHeader.prototype.init = function (params) {
   this.params = params;
 
-  // Outer wrapper (AG Grid adds role="columnheader" to it automatically)
+  // Create outer wrapper (AG Grid will apply role="columnheader" here automatically)
   this.eGui = document.createElement('div');
-  this.eGui.setAttribute('tabindex', '0'); // focusable
+  this.eGui.setAttribute('tabindex', '0'); // Make it keyboard focusable
   this.eGui.setAttribute('aria-label', params.ariaLabel || `Column header: ${params.displayName}`);
   this.eGui.style.display = 'flex';
   this.eGui.style.alignItems = 'center';
@@ -13,27 +13,16 @@ CustomHeader.prototype.init = function (params) {
   this.eGui.style.padding = '0 8px';
   this.eGui.style.cursor = 'pointer';
 
-  // Use a <span> for accessible label container
-  this.labelContainer = document.createElement('span');
-  this.labelContainer.className = 'ag-header-cell-label';
-  this.labelContainer.style.display = 'flex';
-  this.labelContainer.style.alignItems = 'center';
-  this.labelContainer.style.gap = '6px';
-
-  // Column label
+  // Label
   this.label = document.createElement('span');
-  this.label.className = 'ag-header-cell-text';
   this.label.innerText = params.displayName;
+  this.eGui.appendChild(this.label);
 
-  // Sort icon (decorative only)
+  // Sort Icon
   this.sortIcon = document.createElement('span');
   this.sortIcon.setAttribute('aria-hidden', 'true');
-  this.sortIcon.className = 'custom-sort-icon';
   this.sortIcon.style.marginLeft = '6px';
-
-  this.labelContainer.appendChild(this.label);
-  this.labelContainer.appendChild(this.sortIcon);
-  this.eGui.appendChild(this.labelContainer);
+  this.eGui.appendChild(this.sortIcon);
 
   // Update sort icon
   this.updateSortIcon = () => {
@@ -44,13 +33,14 @@ CustomHeader.prototype.init = function (params) {
   this.params.column.addEventListener('sortChanged', this.updateSortIcon);
   this.updateSortIcon();
 
-  // Sorting interaction
+  // Sort logic
   const sortColumn = () => {
     const currentSort = this.params.column.getSort();
     const nextSort = currentSort === 'asc' ? 'desc' : currentSort === 'desc' ? null : 'asc';
     this.params.setSort(nextSort, false);
   };
 
+  // Events
   this.eGui.addEventListener('click', sortColumn);
   this.eGui.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -68,29 +58,37 @@ CustomHeader.prototype.destroy = function () {
   this.params.column.removeEventListener('sortChanged', this.updateSortIcon);
 };
 
-// Grid Options
+// Grid options
 const gridOptions = {
   columnDefs: [
     {
       field: 'make',
       headerName: 'Car Make',
       headerComponent: CustomHeader,
-      headerComponentParams: { ariaLabel: 'Column header: Car Make' }
+      headerComponentParams: {
+        ariaLabel: 'Column header: Car Make'
+      }
     },
     {
       field: 'model',
       headerComponent: CustomHeader,
-      headerComponentParams: { ariaLabel: 'Column header: Model' }
+      headerComponentParams: {
+        ariaLabel: 'Column header: Model'
+      }
     },
     {
       field: 'price',
       headerComponent: CustomHeader,
-      headerComponentParams: { ariaLabel: 'Column header: Price in USD' }
+      headerComponentParams: {
+        ariaLabel: 'Column header: Price in USD'
+      }
     },
     {
       field: 'electric',
       headerComponent: CustomHeader,
-      headerComponentParams: { ariaLabel: 'Column header: Is Electric' }
+      headerComponentParams: {
+        ariaLabel: 'Column header: Is Electric'
+      }
     }
   ],
   defaultColDef: {
@@ -107,14 +105,14 @@ const gridOptions = {
   ]
 };
 
-// ARIA description
+// Add ARIA description element
 const gridDescription = document.createElement("div");
 gridDescription.id = "gridDescription";
 gridDescription.className = "visually-hidden";
 gridDescription.innerText = "This data grid displays a list of car makes, models, prices, and whether they are electric.";
 document.body.prepend(gridDescription);
 
-// Initialize AG Grid
+// Init AG Grid
 document.addEventListener('DOMContentLoaded', function () {
   const gridDiv = document.querySelector('#myGrid');
   gridDiv.setAttribute("role", "grid");

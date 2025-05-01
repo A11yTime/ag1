@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Focus Example</title>
+  <style>
+    .card {
+      display: block;
+      text-decoration: none;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fff;
+      transition: box-shadow 0.2s ease;
+      color: inherit;
+    }
+
+    .card:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:focus {
+      outline: none; /* Remove default outline */
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: #555;
+    }
+
+    /* Focus style only when navigated with keyboard */
+    .card h2:focus-visible {
+      outline: 2px solid #007BFF;
+      outline-offset: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#" class="card">
+    <div>
+      <h2 tabindex="0">Title</h2>
+      <p>Description text goes here.</p>
+    </div>
+  </a>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .card {
+  display: block;
+  text-decoration: none; /* Remove underline */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:focus {
+  outline: none; /* Suppress default anchor focus */
+}
+
+/* Style the heading focus only */
+.card h2:focus {
+  outline: 2px solid #007BFF;
+  outline-offset: 4px;
+}
+
+/* Optional: Improve h2 and p style */
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0;
+  color: #555;
+}
+
+    </style>
+</head>
+<body>
+    <a href="#" class="card">
+        <div>
+          <h2 tabindex="-1">Title</h2>
+          <p>Description text goes here.</p>
+        </div>
+      </a>
+      <script>
+        document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('focus', () => {
+            const heading = card.querySelector('h2');
+            if (heading) heading.focus();
+           });
+        });
+      </script>
+</body>
+</html>

@@ -126,19 +126,20 @@
 
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
   <script>
-    const columnDefs = [
-      { headerName: "#", colId: "rowNum", valueGetter: "node.id", width: 80, pinned: "left" },
-      { field: "athlete", width: 150, pinned: "left" },
-      { field: "age", width: 90, pinned: "left" },
-      { field: "country", width: 150 },
-      { field: "year", width: 90 },
-      { field: "date", width: 110 },
-      { field: "sport", width: 150 },
-      { field: "gold", width: 100 },
-      { field: "silver", width: 100 },
-      { field: "bronze", width: 100 },
-      { field: "total", width: 100, pinned: "right" },
-    ];
+  const columnDefs = [
+  { headerName: "#", colId: "rowNum", valueGetter: "node.id", pinned: "left", width: 80 },
+  { field: "athlete", pinned: "left", flex: 1 },
+  { field: "age", pinned: "left", flex: 1 },
+  { field: "country", flex: 1 },
+  { field: "year", flex: 1 },
+  { field: "date", flex: 1 },
+  { field: "sport", flex: 1 },
+  { field: "gold", flex: 1 },
+  { field: "silver", flex: 1 },
+  { field: "bronze", flex: 1 },
+  { field: "total", pinned: "right", flex: 1 },
+];
+
   
     let gridApi;
   
@@ -224,30 +225,34 @@
     }
   }
 
-  if (event.key.toLowerCase() === 'p' && event.ctrlKey) {
-    event.preventDefault();
-    const focusedCell = gridApi.getFocusedCell();
-    if (focusedCell) {
-      const colId = focusedCell.column.getColId();
-      const colState = gridApi.getColumnState().find(c => c.colId === colId);
-      const currentPinned = colState?.pinned;
+  if (event.key.toLowerCase() === 'q' && event.ctrlKey && !event.altKey) {
+  event.preventDefault();
 
-      let newPinned;
-      if (event.shiftKey) {
-        newPinned = currentPinned === 'right' ? null : 'right';
-      } else {
-        newPinned = currentPinned === 'left' ? null : 'left';
-      }
+  const focusedCell = gridApi.getFocusedCell();
+  if (focusedCell) {
+    const colId = focusedCell.column.getColId();
+    const colState = gridApi.getColumnState().find(c => c.colId === colId);
+    const currentPinned = colState?.pinned;
 
-      gridApi.applyColumnState({
-        state: [{ colId, pinned: newPinned }],
-        defaultState: { pinned: null }
-      });
-
-      const action = newPinned ? `pinned to the ${newPinned}` : 'unpinned';
-      announceForScreenReader(`Column ${colId} ${action}`);
+    let newPinned;
+    if (event.shiftKey) {
+      newPinned = currentPinned === 'right' ? null : 'right';
+    } else {
+      newPinned = currentPinned === 'left' ? null : 'left';
     }
+
+    gridApi.applyColumnState({
+      state: [{ colId, pinned: newPinned }],
+      defaultState: { pinned: null }
+    });
+
+    const action = newPinned ? `pinned to the ${newPinned}` : 'unpinned';
+    announceForScreenReader(`Column ${colId} ${action}`);
   }
+}
+
+
+
 });
 
   </script>

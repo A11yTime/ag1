@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ag-Grid Example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css" />
+  <style>
+    /* Header container */
+    .ag-theme-alpine .ag-header-cell {
+  background-color: #f0f0f0;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%; /* Let it stretch properly */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.ag-theme-alpine .ag-header-cell-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.2; /* Prevent clipping with taller text */
+}
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
+    }
+
+    .example-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .example-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .jump-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .example-header button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .example-header button:hover {
+      background-color: #005fa3;
+    }
+
+    .jump-row input[type="text"] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 50px;
+      transition: border 0.2s ease;
+    }
+
+    .jump-row input[type="text"]:focus {
+      border-color: #007acc;
+      outline: none;
+    }
+
+    #myGrid {
+      flex: 1 1 0px;
+      width: 100%;
+      height: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="example-wrapper">
+    <div class="example-header">
+      <div class="control-row">
+        <button onclick="clearPinned()">Clear Pinned</button>
+        <button onclick="resetPinned()">Left = #, Athlete, Age; Right = Total</button>
+        <button onclick="pinCountry()">Left = Country</button>
+      </div>
+
+      <div class="jump-row">
+        <label for="row">Jump to:</label>
+        <input placeholder="row" type="text" id="row" oninput="jumpToRow()" />
+        <input placeholder="col" type="text" id="col" oninput="jumpToCol()" />
+      </div>
+    </div>
+
+    <div id="myGrid" class="ag-theme-alpine" style="height: 500px; width: 100%;"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <script>
+    const columnDefs = [
+      { headerName: "#", colId: "rowNum", valueGetter: "node.id", width: 80, pinned: "left" },
+      { field: "athlete", width: 150, pinned: "left" },
+      { field: "age", width: 90, pinned: "left" },
+      { field: "country", width: 150 },
+      { field: "year", width: 90 },
+      { field: "date", width: 110 },
+      { field: "sport", width: 150 },
+      { field: "gold", width: 100 },
+      { field: "silver", width: 100 },
+      { field: "bronze", width: 100 },
+      { field: "total", width: 100, pinned: "right" },
+    ];
+    
+
+    let gridApi;
+
+    const gridOptions = {
+      columnDefs: columnDefs,
+      headerHeight: 60 
+    };
+
+    function clearPinned() {
+      gridApi.applyColumnState({ defaultState: { pinned: null } });
+    }
+
+    function resetPinned() {
+      gridApi.applyColumnState({
+        state: [
+          { colId: "rowNum", pinned: "left" },
+          { colId: "athlete", pinned: "left" },
+          { colId: "age", pinned: "left" },
+          { colId: "total", pinned: "right" },
+        ],
+        defaultState: { pinned: null },
+      });
+    }
+
+    function pinCountry() {
+      gridApi.applyColumnState({
+        state: [{ colId: "country", pinned: "left" }],
+        defaultState: { pinned: null },
+      });
+    }
+
+    function jumpToCol() {
+      const value = document.getElementById("col").value;
+      const index = Number(value);
+      if (!isNaN(index)) {
+        const allColumns = gridApi.getColumns();
+        if (allColumns && allColumns[index]) {
+          gridApi.ensureColumnVisible(allColumns[index]);
+        }
+      }
+    }
+
+    function jumpToRow() {
+      const value = document.getElementById("row").value;
+      const index = Number(value);
+      if (!isNaN(index)) {
+        gridApi.ensureIndexVisible(index);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const gridDiv = document.querySelector("#myGrid");
+      gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+      fetch("https://www.ag-grid.com/example-assets/olympic-winners.json")
+        .then((response) => response.json())
+        .then((data) => gridApi.setGridOption("rowData", data));
+    });
+  </script>
+</body>
+</html>

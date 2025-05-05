@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AG Grid with Styles</title>
+  <!-- ✅ AG Grid CSS files -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+
+  <!-- ✅ Page & Grid Container Styling -->
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: sans-serif;
+    }
+    #myGrid {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Theme applied via class -->
+  <div id="myGrid" class="ag-theme-alpine"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <script>
+    const columnDefs = [
+      { headerName: "#", colId: "rowNum", valueGetter: "node.rowIndex + 1", width: 80, pinned: "left" },
+      { field: "athlete", colId: "athlete", width: 150, pinned: "left" },
+      { field: "age", colId: "age", width: 90, pinned: "left" },
+      { field: "country", colId: "country", width: 150 },
+      { field: "year", colId: "year", width: 90 },
+      { field: "date", colId: "date", width: 110 },
+      { field: "sport", colId: "sport", width: 150 },
+      { field: "gold", colId: "gold", width: 100 },
+      { field: "silver", colId: "silver", width: 100 },
+      { field: "bronze", colId: "bronze", width: 100 },
+      { field: "total", colId: "total", width: 100, pinned: "right" },
+    ];
+
+    const rowData = [
+      {
+        athlete: "Michael Phelps", age: 23, country: "USA", year: 2008,
+        date: "24/08/2008", sport: "Swimming", gold: 8, silver: 0, bronze: 0, total: 8
+      },
+      {
+        athlete: "Usain Bolt", age: 22, country: "Jamaica", year: 2008,
+        date: "24/08/2008", sport: "Athletics", gold: 3, silver: 0, bronze: 0, total: 3
+      },
+      {
+        athlete: "Simone Biles", age: 19, country: "USA", year: 2016,
+        date: "21/08/2016", sport: "Gymnastics", gold: 4, silver: 0, bronze: 1, total: 5
+      }
+    ];
+
+    const gridOptions = {
+      columnDefs: columnDefs,
+      rowData: rowData,
+      defaultColDef: {
+        resizable: true,
+        sortable: true,
+      }
+    };
+
+    let gridApi;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const eGridDiv = document.querySelector("#myGrid");
+      gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.altKey && e.key.toLowerCase() === 'q') {
+        e.preventDefault();
+        if (gridApi) {
+          gridApi.applyColumnState({
+            state: [{ colId: "country", pinned: "left" }],
+            defaultState: { pinned: null }
+          });
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

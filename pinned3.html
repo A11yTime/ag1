@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ag-Grid Example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
+    }
+
+    .example-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .example-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+
+    #myGrid {
+      width: 100%;
+      height: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="example-wrapper">
+    <div class="example-header">
+      <div class="control-row">
+        <button onclick="clearPinned()">Clear Pinned</button>
+        <button onclick="resetPinned()">Left = #, Athlete, Age; Right = Total</button>
+        <button onclick="pinCountry()">Left = Country</button>
+      </div>
+
+      <div class="jump-row">
+        <label for="row">Jump to:</label>
+        <input placeholder="row" type="text" id="row" oninput="jumpToRow()" />
+        <input placeholder="col" type="text" id="col" oninput="jumpToCol()" />
+      </div>
+    </div>
+
+    <div id="myGrid" class="ag-theme-alpine"></div>
+  </div>
+
+  <!-- ag-Grid library -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <script>
+    const columnDefs = [
+      { headerName: "#", colId: "rowNum", valueGetter: "node.id", pinned: "left", width: 80 },
+      { field: "athlete", pinned: "left", flex: 1 },
+      { field: "age", pinned: "left", flex: 1 },
+      { field: "country", flex: 1 },
+      { field: "year", flex: 1 },
+      { field: "date", flex: 1 },
+      { field: "sport", flex: 1 },
+      { field: "gold", flex: 1 },
+      { field: "silver", flex: 1 },
+      { field: "bronze", flex: 1 },
+      { field: "total", pinned: "right", flex: 1 },
+    ];
+
+    let gridApi;
+    let columnApi;
+
+    // Define grid options
+    const gridOptions = {
+      columnDefs: columnDefs,
+      onGridReady: function(params) {
+        console.log("Grid is ready!");
+
+        // Save grid API for later use
+        gridApi = params.api;
+        columnApi = params.columnApi;
+
+        // Load data into the grid once it's ready
+        fetch("https://www.ag-grid.com/example-assets/olympic-winners.json")
+          .then((response) => response.json())
+          .then((data) => {
+            gridApi.setRowData(data);
+          });
+      },
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        resizable: true,
+      },
+      paginationPageSize: 10,
+      pagination: true,
+    };
+
+    // Initialize grid
+    document.addEventListener("DOMContentLoaded", () => {
+      const gridDiv = document.querySelector("#myGrid");
+
+      if (gridDiv) {
+        new agGrid.Grid(gridDiv, gridOptions);
+      } else {
+        console.error("Grid container not found!");
+      }
+    });
+
+    // Clear pinned columns
+    function clearPinned() {
+      if (columnApi) {
+        columnApi.getAllColumns().forEach(col => {
+          const columnState = columnApi.getColumnState().find(state => state.colId === col.getColId());
+          if (columnState) columnState.pinned = null;
+        });
+        columnApi.applyColumnState({ state: columnApi.getColumnState() });
+      }
+    }
+
+    // Reset pinned columns
+    function resetPinned() {
+      if (gridApi) {
+        gridApi.applyColumnState({
+          state: [
+            { colId: "rowNum", pinned: "left" },
+            { colId: "athlete", pinned: "left" },
+            { colId: "age", pinned: "left" },
+            { colId: "total", pinned: "right" },
+          ],
+          defaultState: { pinned: null },
+        });
+      }
+    }
+
+    // Pin Country column to left
+    function pinCountry() {
+      if (gridApi) {
+        gridApi.applyColumnState({
+          state: [{ colId: "country", pinned: "left" }],
+          defaultState: { pinned: null },
+        });
+      }
+    }
+
+    // Jump to column
+    function jumpToCol() {
+      const value = document.getElementById("col").value;
+      const index = Number(value);
+      if (!isNaN(index) && columnApi) {
+        const allColumns = columnApi.getAllColumns();
+        if (allColumns && allColumns[index]) {
+          gridApi.ensureColumnVisible(allColumns[index]);
+        }
+      }
+    }
+
+    // Jump to row
+    function jumpToRow() {
+      const value = document.getElementById("row").value;
+      const index = Number(value);
+      if (!isNaN(index) && gridApi) {
+        gridApi.ensureIndexVisible(index);
+      }
+    }
+  </script>
+</body>
+</html>

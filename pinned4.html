@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AG Grid Pinned Column Example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+  <style>
+    html, body, #myGrid {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="myGrid" class="ag-theme-alpine"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <script>
+    const columnDefs = [
+      { headerName: "#", colId: "rowNum", valueGetter: "node.id", width: 80, pinned: "left" },
+      { field: "athlete", colId: "athlete", width: 150, pinned: "left" },
+      { field: "age", colId: "age", width: 90, pinned: "left" },
+      { field: "country", colId: "country", width: 150 }, // FIXED: added colId
+      { field: "year", colId: "year", width: 90 },
+      { field: "date", colId: "date", width: 110 },
+      { field: "sport", colId: "sport", width: 150 },
+      { field: "gold", colId: "gold", width: 100 },
+      { field: "silver", colId: "silver", width: 100 },
+      { field: "bronze", colId: "bronze", width: 100 },
+      { field: "total", colId: "total", width: 100, pinned: "right" },
+    ];
+
+    let gridApi;
+
+    const gridOptions = {
+      columnDefs: columnDefs,
+      headerHeight: 60
+    };
+
+    function clearPinned() {
+      gridApi.applyColumnState({ defaultState: { pinned: null } });
+    }
+
+    function resetPinned() {
+      gridApi.applyColumnState({
+        state: [
+          { colId: "rowNum", pinned: "left" },
+          { colId: "athlete", pinned: "left" },
+          { colId: "age", pinned: "left" },
+          { colId: "total", pinned: "right" },
+        ],
+        defaultState: { pinned: null },
+      });
+    }
+
+    function pinCountry() {
+      if (gridApi) {
+        gridApi.applyColumnState({
+          state: [{ colId: "country", pinned: "left" }],
+          defaultState: { pinned: null },
+        });
+      }
+    }
+
+    function jumpToCol() {
+      const value = document.getElementById("col")?.value;
+      const index = Number(value);
+      if (!isNaN(index)) {
+        const allColumns = gridApi.getColumns();
+        if (allColumns && allColumns[index]) {
+          gridApi.ensureColumnVisible(allColumns[index]);
+        }
+      }
+    }
+
+    function jumpToRow() {
+      const value = document.getElementById("row")?.value;
+      const index = Number(value);
+      if (!isNaN(index)) {
+        gridApi.ensureIndexVisible(index);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const gridDiv = document.querySelector("#myGrid");
+      gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+      fetch("https://www.ag-grid.com/example-assets/olympic-winners.json")
+        .then((response) => response.json())
+        .then((data) => gridApi.setGridOption("rowData", data));
+    });
+
+    // Keyboard shortcut: Alt + Q to pin "Country" column
+    document.addEventListener("keydown", function (e) {
+      if (e.altKey && e.key.toLowerCase() === "q") {
+        e.preventDefault();
+        pinCountry();
+      }
+    });
+  </script>
+</body>
+</html>

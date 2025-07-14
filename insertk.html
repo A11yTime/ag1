@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Insert/Remove Message with Keyboard</title>
+  <style>
+    .message {
+      padding: 10px;
+      background-color: #e8f5e9;
+      border: 1px solid #2e7d32;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h3>Press:</h3>
+  <ul>
+    <li><strong>Alt + E</strong> → Insert message</li>
+    <li><strong>Alt + Shift + E</strong> → Remove message</li>
+  </ul>
+
+  <div id="container"></div>
+
+  <script>
+    const container = document.getElementById('container');
+
+    document.addEventListener('keydown', (event) => {
+      const isAlt = event.altKey;
+      const isShift = event.shiftKey;
+      const key = event.key.toLowerCase();
+
+      if (isAlt && key === 'e' && !isShift) {
+        // Insert message
+        if (!document.getElementById('message')) {
+          const messageDiv = document.createElement('div');
+          messageDiv.id = 'message';
+          messageDiv.className = 'message';
+          messageDiv.textContent = 'Inserted with Alt + E!';
+          container.appendChild(messageDiv);
+        }
+      }
+
+      if (isAlt && isShift && key === 'e') {
+        // Remove message
+        const messageDiv = document.getElementById('message');
+        if (messageDiv) {
+          messageDiv.remove();
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

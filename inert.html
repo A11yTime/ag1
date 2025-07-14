@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Insert and Remove Message</title>
+  <style>
+    #controls {
+      margin-bottom: 10px;
+    }
+    .message {
+      padding: 10px;
+      background-color: #dff0d8;
+      border: 1px solid #3c763d;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="controls">
+    <button id="insertBtn">Insert Message</button>
+    <button id="removeBtn">Remove Message</button>
+  </div>
+
+  <div id="container"></div>
+
+  <script>
+    const insertBtn = document.getElementById('insertBtn');
+    const removeBtn = document.getElementById('removeBtn');
+    const container = document.getElementById('container');
+
+    insertBtn.addEventListener('click', () => {
+      // Only insert if message doesn't already exist
+      if (!document.getElementById('message')) {
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'message';
+        messageDiv.className = 'message';
+        messageDiv.textContent = 'This is a dynamically inserted message!';
+        container.appendChild(messageDiv);
+      }
+    });
+
+    removeBtn.addEventListener('click', () => {
+      const messageDiv = document.getElementById('message');
+      if (messageDiv) {
+        messageDiv.remove();
+      }
+    });
+  </script>
+
+</body>
+</html>

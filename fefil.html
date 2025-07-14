@@ -7,25 +7,24 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css" />
   <style>
-    /* Header container */
     .ag-theme-alpine .ag-header-cell {
-  background-color: #f0f0f0;
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 100%; /* Let it stretch properly */
-  box-sizing: border-box;
-  overflow: hidden;
-}
+      background-color: #f0f0f0;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%; 
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
-.ag-theme-alpine .ag-header-cell-label {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-  line-height: 1.2; /* Prevent clipping with taller text */
-}
+    .ag-theme-alpine .ag-header-cell-label {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      line-height: 1.2; 
+    }
 
     html, body {
       height: 100%;
@@ -126,32 +125,59 @@
 
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
   <script>
-  const columnDefs = [
-  { headerName: "#", colId: "rowNum", valueGetter: "node.id", pinned: "left", width: 80 },
-  { field: "athlete", pinned: "left", flex: 1 },
-  { field: "age", pinned: "left", flex: 1 },
-  { field: "country", flex: 1 },
-  { field: "year", flex: 1 },
-  { field: "date", flex: 1 },
-  { field: "sport", flex: 1 },
-  { field: "gold", flex: 1 },
-  { field: "silver", flex: 1 },
-  { field: "bronze", flex: 1 },
-  { field: "total", pinned: "right", flex: 1 },
-];
+    const columnDefs = [
+      { headerName: "#", colId: "rowNum", valueGetter: "node.id", pinned: "left", width: 80 },
+      { field: "athlete", pinned: "left", flex: 1 },
+      { field: "age", pinned: "left", flex: 1 },
+      { field: "country", flex: 1 },
+      { field: "year", flex: 1 },
+      { field: "date", flex: 1 },
+      { field: "sport", flex: 1 },
+      { field: "gold", flex: 1 },
+      { field: "silver", flex: 1 },
+      { field: "bronze", flex: 1 },
+      { field: "total", pinned: "right", flex: 1 },
+    ];
 
-  
     let gridApi;
-  
+
     const gridOptions = {
       columnDefs: columnDefs,
       headerHeight: 60 
     };
-  
+
     function clearPinned() {
       gridApi.applyColumnState({ defaultState: { pinned: null } });
     }
-  
+
+    // Ensure elements with scrollable content are accessible by keyboard
+document.addEventListener("DOMContentLoaded", () => {
+  const scrollableElement = document.querySelector(".ag-body-viewport");
+
+  // Ensure the element is focusable
+  scrollableElement.setAttribute("tabindex", "0");
+
+  // Add keyboard event listeners for scrolling
+  scrollableElement.addEventListener("keydown", (e) => {
+    switch (e.key) {
+      case "ArrowUp":
+        scrollableElement.scrollBy(0, -10); // Scroll up
+        break;
+      case "ArrowDown":
+        scrollableElement.scrollBy(0, 10); // Scroll down
+        break;
+      case "ArrowLeft":
+        scrollableElement.scrollBy(-10, 0); // Scroll left
+        break;
+      case "ArrowRight":
+        scrollableElement.scrollBy(10, 0); // Scroll right
+        break;
+      default:
+        break;
+    }
+  });
+})
+
     function resetPinned() {
       gridApi.applyColumnState({
         state: [
@@ -163,14 +189,14 @@
         defaultState: { pinned: null },
       });
     }
-  
+
     function pinCountry() {
       gridApi.applyColumnState({
         state: [{ colId: "country", pinned: "left" }],
         defaultState: { pinned: null },
       });
     }
-  
+
     function jumpToCol() {
       const value = document.getElementById("col").value;
       const index = Number(value);
@@ -181,7 +207,7 @@
         }
       }
     }
-  
+
     function jumpToRow() {
       const value = document.getElementById("row").value;
       const index = Number(value);
@@ -189,78 +215,43 @@
         gridApi.ensureIndexVisible(index);
       }
     }
-  
+
     document.addEventListener("DOMContentLoaded", () => {
       const gridDiv = document.querySelector("#myGrid");
       gridApi = agGrid.createGrid(gridDiv, gridOptions);
-  
+
       fetch("https://www.ag-grid.com/example-assets/olympic-winners.json")
         .then((response) => response.json())
         .then((data) => gridApi.setGridOption("rowData", data));
     });
-  
+
     document.addEventListener("keydown", (event) => {
-  if (!gridApi) return;
+      if (!gridApi) return;
 
-  const rowCount = gridApi.getDisplayedRowCount();
-  // const columns = gridApi.getAllColumns();
-  const columns = gridApi.getColumnApi().getAllColumns();
+      const isMac = navigator.platform.indexOf('Mac') > -1;
+      const isCtrl = isMac ? event.metaKey : event.ctrlKey; 
 
+      // Cmd/Ctrl + Shift + C for Clear Pinned
+      if (isCtrl && event.shiftKey && event.key.toLowerCase() === 'c') {
+        
+        event.preventDefault();
+        clearPinned();
+      }
 
-  if (event.key === 'Home') {
-    event.preventDefault();
-    if (rowCount > 0 && columns.length > 0) {
-      gridApi.ensureIndexVisible(0);
-      gridApi.ensureColumnVisible(columns[0]);
-      gridApi.setFocusedCell(0, columns[0].getColId());
-    }
-  }
+      // Cmd/Ctrl + E for Pin Country
+      if (isCtrl && !event.shiftKey && event.key.toLocaleLowerCase() === 'e') {
+        
+        event.preventDefault();
+        pinCountry();
+      }
 
-  if (event.key === 'End') {
-    event.preventDefault();
-    const lastRow = rowCount - 1;
-    if (lastRow >= 0 && columns.length > 0) {
-      const lastCol = columns[columns.length - 1];
-      gridApi.ensureIndexVisible(lastRow);
-      gridApi.ensureColumnVisible(lastCol);
-      gridApi.setFocusedCell(lastRow, lastCol.getColId());
-    }
-  }
-
-  document.addEventListener("keydown", (event) => {
-  if (!gridApi) return;
-
-  if (event.key.toLowerCase() === 'q' && event.ctrlKey) {
-    event.preventDefault();
-
-    const focusedCell = gridApi.getFocusedCell();
-    if (!focusedCell) {
-      console.warn('No focused cell');
-      return;
-    }
-
-    const colId = focusedCell.column.getColId();
-    const colState = gridApi.getColumnState().find(c => c.colId === colId);
-    const currentPinned = colState?.pinned;
-
-    const newPinned = currentPinned === 'left' ? null : 'left';
-
-    gridApi.applyColumnState({
-      state: [{ colId, pinned: newPinned }],
-      defaultState: { pinned: null }
+      // Cmd/Ctrl + Shift + E for Reset Pinned
+      if (isCtrl && event.shiftKey && event.key.toLocaleLowerCase() === 'e') {
+       
+        event.preventDefault();
+        resetPinned();
+      }
     });
-
-    console.log(`Column ${colId} ${newPinned ? 'pinned left' : 'unpinned'}`);
-  }
-});
-
-
-
-
-
-});
-
   </script>
-  
 </body>
 </html>

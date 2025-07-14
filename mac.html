@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Insert/Remove Message with Keyboard</title>
+  <style>
+    .message {
+      padding: 10px;
+      background-color: #e8f5e9;
+      border: 1px solid #2e7d32;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h3>Press:</h3>
+  <ul>
+    <li><strong>Cmd + E</strong> → Insert message (Mac) or Ctrl + E (Windows/Linux)</li>
+    <li><strong>Cmd + Shift + E</strong> → Remove message (Mac) or Ctrl + Shift + E (Windows/Linux)</li>
+  </ul>
+
+  <div id="container"></div>
+
+  <script>
+    const container = document.getElementById('container');
+
+    document.addEventListener('keydown', (event) => {
+      const isCmd = event.metaKey;  // 'metaKey' is for Command on Mac
+      const isCtrl = event.ctrlKey; // 'ctrlKey' is for Control on Windows/Linux
+      const isShift = event.shiftKey;
+      const key = event.key.toLowerCase();
+
+      // Detect for Cmd (Mac) or Ctrl (Windows/Linux) + E
+      if ((isCmd || isCtrl) && key === 'e' && !isShift) {
+        // Insert message
+        if (!document.getElementById('message')) {
+          const messageDiv = document.createElement('div');
+          messageDiv.id = 'message';
+          messageDiv.className = 'message';
+          messageDiv.textContent = 'Inserted with Cmd + E or Ctrl + E!';
+          container.appendChild(messageDiv);
+        }
+      }
+
+      // Detect for Cmd (Mac) + Shift or Ctrl (Windows/Linux) + Shift + E to remove
+      if ((isCmd || isCtrl) && isShift && key === 'e') {
+        // Remove message
+        const messageDiv = document.getElementById('message');
+        if (messageDiv) {
+          messageDiv.remove();
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

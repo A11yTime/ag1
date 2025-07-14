@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="styles.css" />
+  <title>Brush up</title>
+
+  <!-- ag-Grid CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css">
+</head>
+<body>
+  <div id="myGrid" class="ag-theme-alpine" style="width: 100%; height: 100vh;"></div>
+
+  <!-- ag-Grid JS -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+
+  <script>
+    let gridApi;
+
+    class CustomButtonComponent {
+      eGui;
+      eButton;
+      eventListener;
+      keydownListener;
+
+      init(params) {
+        this.eGui = document.createElement("div");
+
+        this.eButton = document.createElement("button");
+        this.eButton.className = "btn-simple";
+        this.eButton.textContent = "Push Me!";
+        this.eButton.setAttribute("type", "button");
+        this.eButton.setAttribute("tabindex", "0"); // Allow tab focus
+
+        // Click handler
+        this.eventListener = () => {
+          alert("clicked");
+        };
+
+        // Keydown handler
+        this.keydownListener = (event) => {
+          const isCtrl = event.ctrlKey || event.metaKey;
+          const isArrow = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key);
+
+          if (isCtrl && isArrow) {
+            // Remove focus from button, restore to grid cell
+            event.preventDefault();
+            this.eButton.blur();
+            if (params.eGridCell) {
+              params.eGridCell.focus();
+            }
+            return;
+          }
+
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            this.eButton.click();
+
+            // Optional: restore focus to cell
+            setTimeout(() => {
+              if (params.eGridCell) {
+                params.eGridCell.focus();
+              }
+            }, 100);
+          }
+        };
+
+        // Focus button when cell is focused (e.g. Tab navigation)
+        if (params.eGridCell) {
+          params.eGridCell.addEventListener("focus", () => {
+            this.eButton.focus();
+          });
+        }
+
+        // Add listeners
+        this.eButton.addEventListener("click", this.eventListener);
+        this.eButton.addEventListener("keydown", this.keydownListener);
+
+        this.eGui.appendChild(this.eButton);
+      }
+
+      getGui() {
+        return this.eGui;
+      }
+
+      refresh() {
+        return true;
+      }
+
+      destroy() {
+        if (this.eButton) {
+          this.eButton.removeEventListener("click", this.eventListener);
+          this.eButton.removeEventListener("keydown", this.keydownListener);
+        }
+      }
+    }
+
+    const gridOptions = {
+      rowData: [
+        { make: "Tesla", model: "Model Y", price: 64950, electric: true },
+        { make: "Ford", model: "F-Series", price: 33850, electric: false },
+        { make: "Toyota", model: "Corolla", price: 29600, electric: false },
+        { make: "Mercedes", model: "EQA", price: 48890, electric: true },
+        { make: "Fiat", model: "500", price: 15774, electric: false },
+        { make: "Nissan", model: "Juke", price: 20675, electric: false },
+      ],
+      columnDefs: [
+        {
+          headerName: "Make & Model",
+          valueGetter: (p) => p.data.make + " " + p.data.model,
+          flex: 2,
+        },
+        {
+          field: "price",
+          valueFormatter: (p) => "£" + Math.floor(p.value).toLocaleString(),
+          flex: 1,
+        },
+        { field: "electric", flex: 1 },
+        {
+          field: "button",
+          cellRenderer: CustomButtonComponent,
+          flex: 1
+        }
+      ],
+    };
+
+    const gridDiv = document.querySelector("#myGrid");
+    gridApi = agGrid.createGrid(gridDiv, gridOptions);
+  </script>
+</body>
+</html>
